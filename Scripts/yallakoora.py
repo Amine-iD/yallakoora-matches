@@ -8,8 +8,19 @@ from bs4 import BeautifulSoup
 import csv
 import sqlite3
 date = input("Enter Date in the form of mm/dd/yyyy: ")
-page = requests.get(f'https://www.yallakora.com/match-center/%D9%85%D8%B1%D9%83%D8%B2-%D8%A7%D9%84%D9%85%D8%A8%D8%A7%D8%B1%D9%8A%D8%A7%D8%AA?date={date}#')
-data =[] 
+try :
+    page = requests.get(f'https://www.yallakora.com/match-center/%D9%85%D8%B1%D9%83%D8%B2-%D8%A7%D9%84%D9%85%D8%A8%D8%A7%D8%B1%D9%8A%D8%A7%D8%AA?date={date}#')
+    page.raise_for_status()
+except requests.exceptions.ConnectionError:
+    print("Connection Error Occured")
+
+except requests.exceptions.RequestException as e:
+    print('An Error Occured!',e)
+
+finally:
+    ... #code cleanup    
+
+data =[]
 
 def main(page):
     src = page.content # get the src code of the page
@@ -36,9 +47,7 @@ def main(page):
                 data.append({'Championship' :championship_title , 'Team 1':team_A ,'Team 2':team_B ,'Match Time' :time, 'Match Date':date ,'Score' : score })
     get_data(championships)
 main(page)
-# print(data)
-# 10/05/2023
-# Import data to csv file
+# Import data to csv file :
 keys = data[0].keys()
 # with open(rf"{os.getcwd()}/Projects/WebScraping/matches.csv",'w') as output_file:
 #     dict_writer = csv.DictWriter(output_file,keys)
@@ -54,10 +63,6 @@ for i in range(lst_length):
     values = list(data[i].values())
     cr.execute(f"insert into matches values('{values[0]}' , '{values[1]}' , '{values[2]}' , '{values[3]}' , '{values[4]}' , '{values[5]}' )")
     db.commit()
-
-# cr.execute("insert into matches values ()")
-
-
 db.close()
 
 """
